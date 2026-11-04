@@ -2,8 +2,8 @@
 Sebastian Hanisch - Operations Research und Machine Learning
 
 Stück 10 der Linie "Monte-Carlo-Schätzung und Varianzreduktion": Der Pick-Freeze-Entwurf misst mit (p + 2) N Modellläufen, welcher Anteil der Ausgabevarianz an welcher Eingabe hängt (Erstordnungs- und Gesamtindex).
-Kleine Erstordnungsindizes gehen im Rauschen unter, kleine Gesamtindizes nicht; der Schätzer muss zur Indexgröße passen (Owen 2013 bei kleinen), Rangfolge ist billiger als Wert, Σ T ist die mittlere Dimension,
-bei wenigen Eingaben ist die Aufzählung billiger, und bei seltenen Ausgaben hilft kein N. Vehikel sind die Netz-Integranden der Reihe und ein Begleiter exp(Σ aᵢuᵢ); alle Indizes sind exakt.
+Kleine Erstordnungsindizes gehen im Rauschen unter, kleine Gesamtindizes erst bei kleinem N; der Schätzer muss zur Indexgröße passen (Owen 2013 bei kleinen), Rangfolge ist billiger als Wert, Σ T ist die mittlere Dimension,
+bei wenigen Eingaben ist die Aufzählung billiger, und bei seltenen Ausgaben hilft N erst, wenn im Mittel mehrere Ausfälle je Stichprobe vorkommen. Vehikel sind die Netz-Integranden der Reihe und ein Begleiter exp(Σ aᵢuᵢ); alle Indizes sind exakt.
 
 Lauffähig mit: streamlit run app.py
 """
@@ -78,8 +78,8 @@ st.markdown(
     """
 Ein **Sobol-Index** sagt, welcher Anteil der Varianz einer Ausgabe an einer Eingabe hängt: der **Erstordnungsindex** (die Eingabe allein) und der **Gesamtindex** (die Eingabe mit allen Wechselwirkungen).
 Der **Pick-Freeze-Entwurf** schätzt beide aus zwei unabhängigen Zufallsmatrizen A und B und den Mischungen AB_i mit **(p + 2) N** Modellläufen. Wie genau das ist, hängt an der Größe des Index:
-**kleine Erstordnungsindizes gehen im Rauschen unter, kleine Gesamtindizes nicht**, und der **Schätzer** muss zur Indexgröße passen. Eine **Rangfolge** ist billiger als ein Wert, die **Summe der Gesamtindizes** ist die mittlere Dimension aus
-Stück 9, und bei wenigen Eingaben ist die **Aufzählung** billiger als jede Stichprobe. Bei **seltenen Ausgaben** hilft kein N.
+**kleine Erstordnungsindizes gehen im Rauschen unter, kleine Gesamtindizes erst bei kleinem N**, und der **Schätzer** muss zur Indexgröße passen. Eine **Rangfolge** ist billiger als ein Wert, die **Summe der Gesamtindizes** ist die mittlere Dimension aus
+Stück 9, und bei wenigen Eingaben ist die **Aufzählung** billiger als jede Stichprobe. Bei **seltenen Ausgaben** hilft N erst, wenn im Mittel mehrere Ausfälle je Stichprobe vorkommen (hier ab etwa N = 10 000).
 
 Weiter unten: **🔬 fünf Experimente**, **💰 Kosten**, **🧪 Spielwiese**, **🚧 Wo die Annahmen enden** und die Expander **⚠️ Annahmen, Grenzen und bekannte Probleme** und **📐 Mathematische Formulierung**.
 """
@@ -91,7 +91,7 @@ with st.expander("So funktioniert der Pick-Freeze-Entwurf", expanded=True):
 1. **Zwei Matrizen:** A und B, je N Zeilen und p Spalten (eine Spalte je Eingabe), unabhängig gleichverteilt. **AB_i** ist A, aber mit der Spalte i aus B: Eingabe i ist »frisch gezogen«, alle anderen sind »eingefroren«.
 2. **Läufe:** f(A), f(B) und f(AB_1), …, f(AB_p): zusammen **(p + 2) N**. Für die Gesamtindizes allein genügen f(A) und die AB_i, also (p + 1) N.
 3. **Schätzer:** Hängt f kaum von u_i ab, sind f(A) und f(AB_i) fast gleich. **Gesamtindex** (Jansen): mittleres (f(A) − f(AB_i))² geteilt durch 2 Var f. **Erstordnungsindex** (Saltelli, Jansen, Janon, Owen): Kovarianz oder Abstand von f(B) und f(AB_i), die nur durch u_i verbunden sind.
-4. **Warum klein schwer ist:** Der Erstordnungsschätzer ist ein Mittelwert von Termen, deren Streuung kaum davon abhängt, wie groß der Index ist: der absolute Fehler bleibt gleich, der Index schrumpft. Der Gesamtschätzer mittelt Quadrate kleiner Differenzen: sein Fehler schrumpft mit.
+4. **Warum klein schwer ist:** Die Erstordnungsschätzer von Jansen und Janon sind Mittelwerte von Termen, deren Streuung kaum davon abhängt, wie groß der Index ist (bei Saltelli wächst sie mit dem Index): der absolute Fehler bleibt etwa gleich, der Index schrumpft. Der Gesamtschätzer mittelt Quadrate kleiner Differenzen: sein Fehler schrumpft mit.
         """
     )
 
@@ -232,7 +232,7 @@ st.markdown("---")
 # --- Kosten --------------------------------------------------------------------------------------------------------------------------------
 
 st.subheader("💰 Kosten: Aufzählung gegen Pick-Freeze")
-st.caption("Exakt (kein Zufall): Modellläufe für die drei Netze. Bei diskreten Eingaben genügen 2^p Läufe für alle Indizes ohne jeden Fehler; Pick-Freeze lohnt sich erst, wenn 2^p die Läufe weit übersteigt.")
+st.caption("Exakt (kein Zufall): Modellläufe für die drei Netze. Bei diskreten Eingaben mit bekannter Verteilung genügen 2^p Läufe für alle Indizes ohne Stichprobenfehler; Pick-Freeze lohnt sich erst, wenn 2^p die Läufe weit übersteigt.")
 cost = ev.cost_rows(settings.n)
 st.plotly_chart(build_cost(cost), width="stretch", key="cost_chart")
 st.dataframe(
@@ -278,12 +278,12 @@ st.markdown(
 | Annahme | Was passiert, wenn sie verletzt ist | Wer setzt an |
 |---|---|---|
 | **Der Index ist nicht zu klein** | Erstordnungsindizes unter dem Schätzfehler gehen im Rauschen unter und werden zur Hälfte negativ geschätzt (Experimente 1 und 2). | – |
-| **Der Schätzer passt zur Indexgröße** | Für große Indizes sind Jansen und Janon besser, für kleine Owens Drei-Matrizen-Schätzer; Homma–Saltelli ohne Zentrierung ist überall schlechter (Experiment 2). | – |
-| **Eine Rangfolge reicht** | Wer nur wissen will, welche Eingaben wirken, braucht deutlich weniger Läufe als für den Wert (Experiment 3). | – |
+| **Der Schätzer passt zur Indexgröße** | Für große Indizes sind Jansen und Janon besser, für kleine Owens Drei-Matrizen-Schätzer; Homma–Saltelli ohne Zentrierung ist bei den hier gemessenen Ausgaben (Mittelwert deutlich von 0) überall schlechter (Experiment 1). | – |
+| **Eine Rangfolge reicht** | Wer nur wissen will, welche Eingaben wirken, braucht weniger Läufe als für den Wert: am Gitter 3×3 gelingt die Trennung ab 13.000 Läufen, der kleinste Gesamtindex ist auf etwa 11 % genau erst bei 130.000 (Experiment 3 und Experiment 1). | – |
 | **Die Ausgabe variiert in der Stichprobe** | Bei seltenen Ereignissen (Gitter 3×4, p = 0,99) hat ein großer Teil der Läufe keine Varianz, die Indizes sind undefiniert und auch die definierten sind weit weg (Preset »Seltene Ausgabe«). | Stück 7 (Importance Sampling) |
-| **Der Fehlerbalken rechnet den Nenner mit** | Mit festem Nenner wird der Balken für Erstordnungsindizes etwa doppelt so breit (Experiment 5). | Stück 15 (Bootstrap) |
+| **Der Fehlerbalken rechnet den Nenner mit** | Mit festem Nenner wird der Balken für Erstordnungsindizes etwa 1,8-mal so breit und zu konservativ (Überdeckung 0,99; Experiment 5). | Stück 15 (Bootstrap) |
 | **Die Eingaben sind unabhängig** | Für abhängige Eingaben sind diese Indizes nicht mehr eindeutig; hier nicht behandelt. | – |
-| **Wenige Eingaben, diskret** | Dann ist die Aufzählung billiger und fehlerfrei (Kosten). | Stück 9 (exakte ANOVA) |
+| **Wenige Eingaben, diskret** | Dann ist die Aufzählung billiger und ohne Stichprobenfehler (Kosten). | Stück 9 (exakte ANOVA) |
 """
 )
 

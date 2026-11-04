@@ -383,4 +383,4 @@ def verdict_intervals(ex: dict) -> tuple[str, str]:
 
 def verdict_cost(rows: list[dict], N: int) -> tuple[str, str]:
     parts = "; ".join(f"{r['netz']} (p = {r['p']}): Aufzählung {de(r['enum'], 0)} Läufe, Pick-Freeze {de(r['saltelli'], 0)}, Gleichstand bei N = {de(r['breakeven'], 0)}" for r in rows)
-    return "info", f"Bei N = {de(N, 0)}: {parts}. Bei wenigen diskreten Eingaben ist die Aufzählung billiger; Pick-Freeze lohnt sich erst, wenn 2^p die Läufe weit übersteigt."
+    return "info", f"Bei N = {de(N, 0)}: {parts}. Bei wenigen diskreten Eingaben mit bekannter Verteilung ist die Aufzählung billiger; Pick-Freeze lohnt sich erst, wenn 2^p die Läufe weit übersteigt."

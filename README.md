@@ -13,10 +13,10 @@ Ein Sobol-Index sagt, welcher Anteil der Ausgabevarianz an einer Eingabe hängt:
 
 Vor dem Bau wurden die Hypothesen der Gliederung an Messreihen geprüft (Vormessung im Website-Repo, `docs/planung/monte-carlo-planung/vormessung/`). Was sich geändert hat oder beim Bau dazukam:
 
-- **„Kleine Indizes werden vom Rauschen verschluckt“ stimmt nur für Erstordnungsindizes.** Der Fehler des Gesamtindex-Schätzers von Jansen wächst mit dem Index (er mittelt Quadrate kleiner Differenzen); der des Erstordnungsschätzers nicht.
-- **Eine Abhilfe für kleine Erstordnungsindizes gibt es:** Owens Drei-Matrizen-Schätzer (2013), bei gleichen Läufen 2- bis 30-mal genauer, bei großen Indizes aber schlechter.
+- **„Kleine Indizes werden vom Rauschen verschluckt“ stimmt bei großem N nur für Erstordnungsindizes.** Der Fehler des Gesamtindex-Schätzers von Jansen wächst mit dem Index (er mittelt Quadrate kleiner Differenzen); der Fehler der Erstordnungsschätzer von Jansen und Janon hängt kaum vom Index ab, der von Saltelli wächst mit ihm. Bei kleinem N geht auch ein kleiner Gesamtindex unter (Gitter 3×3, T = 0,0659, N = 100: RMSE 0,093, größer als der Index).
+- **Eine Abhilfe für kleine Erstordnungsindizes gibt es:** Owens Drei-Matrizen-Schätzer (2013), bei gleichen Läufen 2- bis 30-mal genauer für kleine Indizes; bei den gemessenen großen Indizes (0,53 bis 0,63) ist er schlechter als Jansen und Janon.
 - **Bei wenigen diskreten Eingaben ist die Aufzählung billiger** als jede Stichprobe.
-- **Die Näherung mit festem Nenner ist falsch:** Sie macht den Erstordnungsbalken etwa doppelt so breit; der Bootstrap muss den ganzen Schätzer neu rechnen.
+- **Die Näherung mit festem Nenner ist zu konservativ:** Sie macht den Erstordnungsbalken etwa 1,8-mal so breit (Überdeckung 0,99 statt 0,90); der Bootstrap muss den ganzen Schätzer neu rechnen.
 - **Der Messwert „Anteil mit Varianz“ ist keine Verzerrung des Schätzers,** sondern ein eigener Befund bei seltenen Ausgaben (Gitter 3×4 bei p = 0,99).
 - **Der Engpass-Integrand aus Stück 9 entfiel** (keine exakten Indizes); der glatte Integrand läuft nur bis 12 Kanten (Zeit), der Sprung bis 17.
 - **Quasi-Zufallszahlen sind eine Option im Entwurf** (A und B als zwei Hälften eines 2p-dimensionalen Owen-Sobol-Punktes), kein eigenes Experiment.
@@ -35,7 +35,7 @@ Zufallszahlen aus festen SplitMix64-Strömen (nie ein einzelner Seed); A, B unab
 
 ## Befunde (gemessen, keine Behauptungen)
 
-Alle Zahlen stehen in `tests/test_claims.py`. Wenn nicht anders angegeben: Pick-Freeze mit unabhängigen Zufallsmatrizen, RMSE über 100 Wiederholungen, ein einzelner RMSE ist auf etwa 10 bis 15 % genau.
+Alle Zahlen stehen in `tests/test_claims.py`. Wenn nicht anders angegeben: Pick-Freeze mit unabhängigen Zufallsmatrizen, RMSE über 100 Wiederholungen, ein einzelner RMSE ist auf etwa 10 bis 15 % genau (bei schweren Rändern wie der seltenen Ausgabe schlechter).
 
 | Frage | Befund |
 |---|---|
@@ -46,10 +46,10 @@ Alle Zahlen stehen in `tests/test_claims.py`. Wenn nicht anders angegeben: Pick-
 | **Kleinster Erstordnungsindex** des Gitters 3×3 (0,0024), N = 10 000 (140 000 Läufe) | RMSE Saltelli **0,0175**, Jansen **0,0134**, Janon **0,0108**: das **4,5- bis 7-Fache** des Index; **43 bis 50 %** der Schätzungen sind negativ |
 | **Kleinster Gesamtindex**, RMSE bei N = 10 000, Jansen | Gitter 3×3 (T = 0,0659) **0,0075**; Hantel (T = 0,111) **0,0065**; Begleiter (T = 0,0113) **0,0002**; Schätzungen nie negativ |
 | Nicht zentrierter Schätzer, Hantel, N = 1000 | Homma–Saltelli: größter S **0,150** gegen Jansen **0,032** (das 4,7-Fache); Gesamtindex **0,098** gegen **0,036** |
-| **Schätzerwahl nach Indexgröße**, Begleiter, N = 1000, RMSE größter / kleinster S | Saltelli **0,113 / 0,0150**; Jansen **0,0208 / 0,0289**; Janon **0,0197 / 0,0294**: für den großen Index Jansen und Janon, für den kleinen Saltelli |
+| **Schätzerwahl nach Indexgröße**, Begleiter, N = 1000, RMSE größter / kleinster S | Saltelli **0,113 / 0,0150**; Jansen **0,0208 / 0,0289**; Janon **0,0197 / 0,0294**: für den großen Index Jansen und Janon, für den kleinen Saltelli (am Begleiter; am Gitter 3×3 ist Saltelli am kleinsten Index der schlechteste der drei) |
 | **Owens Schätzer bei gleichen Läufen** (N Saltelli = 1000, N Owen 538 bis 562), RMSE kleinster / größter S | Gitter 3×3 (0,0024 / 0,0283): **0,0086 / 0,0352** gegen Jansen 0,0432 / 0,0589; Begleiter (0,010 / 0,63): **0,0010 / 0,0538** gegen 0,0292 / 0,0202; glatte Hantel (0,0747 / 0,531): **0,0077 / 0,0477** gegen 0,0316 / 0,0197; Hantel (0,0175 / 0,631): **0,0152 / 0,0829** gegen 0,0362 / 0,0345 |
-| dasselbe bei N Saltelli = 10 000, Verhältnis Jansen : Owen am kleinsten Index | Gitter 3×3 **3,9**, Begleiter **32**, Hantel **2,4**; Anteil negativer Schätzungen am Gitter: Owen unter 5 %, Jansen 43 % |
-| **Summen der Indizes**, N = 10 000, relativer RMSE der Summe | Σ T (Jansen): Gitter 3×3 **2,7 %** (RMSE 0,056 bei 2,067), Hantel **1,3 %**, Begleiter **1,2 %**; Σ S (Janon): Gitter **46 %** (0,109 bei 0,2365), Hantel 8 %, Begleiter 7,7 % |
+| dasselbe bei N Saltelli = 10 000, Verhältnis Jansen : Owen am kleinsten Index | Gitter 3×3 **3,9**, Begleiter **32**, Hantel **2,4** (bei N = 1000 gemessen); Anteil negativer Schätzungen am Gitter: Owen unter 5 %, Jansen 43 % |
+| **Summen der Indizes**, N = 10 000, relativer RMSE der Summe | Σ T (Jansen): Gitter 3×3 **2,7 %** (RMSE 0,056 bei 2,067), Hantel **1,3 %**, Begleiter **1,1 %**; Σ S (Janon): Gitter **46 %** (0,109 bei 0,2365), Hantel 8 %, Begleiter 7,7 % |
 | **Rangfolge**, Gitter 3×3 (8 Kanten T = 0,225 gegen 4 mit 0,0659), Jansen-Gesamtindex, N = 30 / 100 / 300 / 1000 / 3000 | Anteil der Läufe, in denen alle 8 wirksamen vor allen 4 anderen stehen: **0,00 / 0,04 / 0,43 / 0,97 / 1,00** (390 / 1300 / 3900 / 13 000 / 39 000 Läufe) |
 | Rangfolge, Gitter 3×4 (8 obere gegen 9 untere Kanten) | **0,00 / 0,02 / 0,24 / 0,87 / 1,00** (540 bis 54 000 Läufe) |
 | Rangfolge, Begleiter aᵢ = 1/i, d = 8 | die wichtigste Eingabe wird schon bei N = 30 (270 Läufe) in allen Läufen erkannt |
@@ -64,7 +64,7 @@ Alle Zahlen stehen in `tests/test_claims.py`. Wenn nicht anders angegeben: Pick-
 - **Die Eingaben sind unabhängig;** für abhängige Eingaben sind Erst- und Gesamtindizes nicht mehr eindeutig. Keine Indizes zweiter Ordnung, keine Gruppenindizes.
 - **Owens Schätzer läuft mit unabhängigen Zufallszahlen** (3p Dimensionen), auch wenn A und B quasi-zufällig sind.
 - **Intervalle nur für den Jansen-Schätzer und nur bis N = 1000** (Kosten); für kleine Indizes sind sie breiter als der Index selbst.
-- **Eine Messung mit 100 Wiederholungen rauscht:** ein einzelner RMSE ist auf etwa 10 bis 15 % genau, Überdeckungen auf etwa ±0,05 bis ±0,09; die Bänder der Tests sind entsprechend weit.
+- **Eine Messung mit 100 Wiederholungen rauscht:** ein einzelner RMSE ist auf etwa 10 bis 15 % genau (bei schweren Rändern wie der seltenen Ausgabe schlechter), Überdeckungen auf etwa ±0,05 bis ±0,09; die Bänder der Tests sind entsprechend weit.
 - **Kosten sind Modellläufe;** die Tabellenauswertung des Netzes ist fast kostenlos, bei einem echten Modell ist es die Läufezahl, die zählt.
 - **Quellenlage:** Saltelli 2010, Jansen und Janon/Monod sind nur als Formeln aus dem Gedächtnis eingebaut (das Abstract von Saltelli 2010 war nicht erreichbar); Owen 2013 ist im Abstract und in Abschnitt 3 gelesen (die Erwartungstreue der Owen-Formel ist dennoch exakt nachgerechnet, siehe Verifikation), Azzini u. a. 2020 nur im Abstract.
 
