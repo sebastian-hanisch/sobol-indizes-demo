@@ -1,7 +1,6 @@
 # Sobol-Indizes: welche Eingabe treibt die Varianz? – Streamlit-Demo
 
-<!-- TODO nach dem Deploy: direkt hierher den Live-Link setzen (Leerzeile davor und danach):
-**[→ Demo live ausprobieren](https://sebastianhanisch-sobol-indizes-demo.streamlit.app/)** -->
+**[→ Demo live ausprobieren](https://sebastianhanisch-sobol-indizes-demo.streamlit.app/)**
 
 Zehntes Stück der Linie **„Monte-Carlo-Schätzung und Varianzreduktion“** in der „Konzepte“-Reihe für die Website „Sebastian Hanisch – Operations Research und Machine Learning“ (die Linie wird erst vollständig veröffentlicht). Nachfolger von [quasi-monte-carlo-demo](https://github.com/sebastian-hanisch/quasi-monte-carlo-demo) (Stück 9, dort die exakte ANOVA und die mittlere Dimension): Hier werden dieselben Größen aus Modellläufen **geschätzt**. Der Pick-Freeze-Entwurf liefert Erst- und Gesamtindizes mit (p + 2) N Läufen; gemessen wird, wie genau, für welche Indexgröße und zu welchem Preis. Vehikel sind die Netz-Integranden der Reihe (Zusammenhang eines Gitternetzes oder einer Hantel, glatt oder als Sprung) und ein Begleiter exp(Σ aᵢuᵢ); alle Indizes sind exakt bekannt.
 
@@ -135,4 +134,4 @@ Gebaut mit Streamlit, Plotly, NumPy und fpdf2.
 
 ---
 
-Diese Demo ist Teil des Portfolios von [Sebastian Hanisch](https://sebastianhanisch.net) – Operations Research und Machine Learning ([Über mich](https://sebastianhanisch.net/ueber-mich.html)). Mehr zu den Demos: [Interaktive Demos](https://sebastianhanisch.net/demos.html).
+Diese Demo ist Teil des Portfolios von [Sebastian Hanisch](https://sebastianhanisch.net) – Operations Research und Machine Learning ([Über mich](https://sebastianhanisch.net/ueber-mich.html)). Mehr zur Reihe: [Monte-Carlo-Schätzung: vom Schätzer zur Wahl](https://sebastianhanisch.net/konzepte-monte-carlo.html).
